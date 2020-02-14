@@ -19,15 +19,14 @@ public class Test6 {
 class Singleton {
 
     public static int a;
-//    public static Singleton singleton = new Singleton();
-    public static int b = 0;
+//    public static int b = 0;
     public static Singleton singleton = new Singleton();
 
     private Singleton() {
         a++;
-        b++;
+        b++; //准备阶段的意义 如果没准备阶段赋初值的话，在这里b是没有值的
     }
-
+    public static int b = 0;
     public static Singleton getinstance() {
         return singleton;
     }
