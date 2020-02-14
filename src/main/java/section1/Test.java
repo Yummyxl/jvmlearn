@@ -1,4 +1,4 @@
-package lesson1;
+package section1;
 
 /**
  * 应用模块名称<p>
