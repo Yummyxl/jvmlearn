@@ -20,7 +20,18 @@ public class Test7 {
     }
 }
 
-interface Parent7 {
+interface GraParent7 {
+    public static final Thread t = new Thread() {
+        {
+            // 如果有输出，说明t被赋予了实例值，即Parent7类被初始化了
+            System.out.println("graparent7 invoke");
+
+        }
+    };
+}
+
+interface Parent7 extends GraParent7 {
+
     public static final Thread t = new Thread() {
         {
             // 如果有输出，说明t被赋予了实例值，即Parent7类被初始化了
@@ -32,4 +43,9 @@ interface Parent7 {
 
 class Child7 implements Parent7 {
     public static int b = 7;
+
+    static {
+        System.out.println("child7 invoke");
+    }
+
 }
