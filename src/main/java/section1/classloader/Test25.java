@@ -14,7 +14,7 @@ import java.sql.DriverManager;
 public class Test25 {
 
     public static void main(String[] args) throws Exception {
-//        Class.forName("com.mysql.jdbc.Driver");
+        Class.forName("com.mysql.jdbc.Driver");
         Connection connection = DriverManager.getConnection("jdbc:mysql://172.21.139.13:3306/haoke", "chaikuservice", "testchaiku");
         System.out.println(connection);
         connection.close();
