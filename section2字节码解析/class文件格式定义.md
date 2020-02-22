@@ -340,5 +340,7 @@ Jvm预定义了部分attribute，编译器也可以实现自己的attribute写�
     + LineNumberTable 这个属性用来表示code数组中的字节码和java代码行数之间的关系，可以用来在调试的时候定位代码执行的行数。结构如图所示
     ![image text](https://mmbiz.qpic.cn/mmbiz_png/BQGpt2vnVYUpW4xYLj72IhNnJqGibMAlMKJdERvqbErBMqGMoxia6RIvztaVZRZymCAsprGHGvBnic772dkpfLkEA/0?wx_fmt=png)
 
+19. 最后是附加属性信息
+
 
 
