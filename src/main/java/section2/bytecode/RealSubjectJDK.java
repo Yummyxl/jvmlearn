@@ -8,7 +8,7 @@ package section2.bytecode;
  * @Date: 2020/2/24
  */
 
-public class RealSubject implements Subject {
+public class RealSubjectJDK implements SubjectJDK {
 
     @Override
     public void request() {

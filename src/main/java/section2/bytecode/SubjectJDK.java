@@ -8,7 +8,7 @@ package section2.bytecode;
  * @Date: 2020/2/24
  */
 
-public interface Subject {
+public interface SubjectJDK {
 
     void request();
 

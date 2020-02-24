@@ -11,11 +11,11 @@ import java.lang.reflect.Method;
  * @Date: 2020/2/24
  */
 
-public class DynamicSubject implements InvocationHandler {
+public class DynamicSubjectJDK implements InvocationHandler {
 
     private Object subject;
 
-    public DynamicSubject(Object subject) {
+    public DynamicSubjectJDK(Object subject) {
         this.subject = subject;
     }
 
