@@ -14,7 +14,7 @@ public class ClientJDK {
 
     public static void main(String[] args) {
         // 添加属性可以在项目中生成 运行期生成的.class文件
-        System.getProperties().setProperty("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
+//        System.getProperties().setProperty("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
         RealSubjectJDK realSubject = new RealSubjectJDK();
         DynamicSubjectJDK dynamicSubject = new DynamicSubjectJDK(realSubject);
         Class<? extends RealSubjectJDK> aClass = realSubject.getClass();
