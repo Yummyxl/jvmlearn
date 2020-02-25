@@ -13,6 +13,7 @@ import net.sf.cglib.proxy.Enhancer;
 public class ClientCJLIB {
 
     public static void main(String[] args) {
+        System.getProperties().setProperty("cglib.debugLocation", "/Users/bjhl/IdeaProjects/jvmlearn/src/main/java/section2");
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(SubjectCJLIB.class);
         enhancer.setCallback(new DynamicSubjectCJLIB());
