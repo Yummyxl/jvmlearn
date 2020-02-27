@@ -61,7 +61,7 @@ public class Test1 {
 //        byte[] bytes1 = new byte[2 * size];
 //        byte[] bytes2 = new byte[2 * size];
 //        byte[] bytes3 = new byte[2 * size];
-//        byte[] bytes4 = new byte[2 * size];  //在此执行一次Scavenge GC 和 一次 Full GC
+//        byte[] bytes4 = new byte[2 * size];  //在此执行一次年轻代GC 和 一次 Full GC  只是发生在年轻代gc
 
 
         /**
