@@ -57,6 +57,8 @@ public class Test1 {
          *   class space    used 339K, capacity 388K, committed 512K, reserved 1048576K
          *
          * Process finished with exit code 0
+         *
+         * https://blog.csdn.net/zz133110/article/details/104454819
          */
 //        byte[] bytes1 = new byte[2 * size];
 //        byte[] bytes2 = new byte[2 * size];
