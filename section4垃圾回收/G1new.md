@@ -32,9 +32,9 @@
 - 实际上，HotSpot不会为每一条指令都生成OopMap，而是在 特定的位置 记录这些信息，这些位置被称为安全点 safe point，即程序执行的时候并非所有地方都可以停顿下来执行GC，只要在等到安全点的时候才可以暂停执行
 - Safe Point的选取不能太少以至于让GC等待的时间过长，也不能选取太频繁导致过分增大运行时的负担。安全点的选取基本原则是 是否具有让程序长时间运行的特征为标准选定的，因为每条指令执行的时间非常短暂，程序不太可能因为一个指令长度过长而运行太长的时间，长时间执行的最明显特征就是指令序列复用，比如方法调用、循环跳转、异常跳转等，所以具有这些功能等指令才会产生safe point
 - 对于安全点来说，另一个需要考虑的问题是如何让所有的线程（不包括JNI调用的线程）在GC发生的时候都跑到最近的安全点停顿下来，这里有两种方式：
-   + 抢占式中断，GC会主动通知每一个线程，如果线程不在安全点上，就唤醒线程指定到最近的安全点上
-   + 主动式中断，GC会设置一个中断标志，不直接操作线程，线程会轮训这个标志，轮训的地方和安全点是重合的，另外再加上创建对象需要分配内存的地方
-   + 现代虚拟机几乎没有抢占式中断
+    + 抢占式中断，GC会主动通知每一个线程，如果线程不在安全点上，就唤醒线程指定到最近的安全点上
+    + 主动式中断，GC会设置一个中断标志，不直接操作线程，线程会轮训这个标志，轮训的地方和安全点是重合的，另外再加上创建对象需要分配内存的地方
+    + 现代虚拟机几乎没有抢占式中断
 
 ### 安全区域
 
@@ -47,16 +47,16 @@
 
 - 吞吐量关注的是，在一个指定的时间内，最大化一个应用的工作量
 - 如下方式来衡量一个系统吞吐量的好坏
-   + 在一个小时内同一个事务（或者请求任务）完成的次数 tps
-   + 数据库一小时可以完成多少查询
-   + 对于关注吞度量的系统，卡顿是可以接受的，因为这个系统关注的是长时间的大量任务的执行能力，单次任务快速的响应并不值得考虑
+    + 在一个小时内同一个事务（或者请求任务）完成的次数 tps
+    + 数据库一小时可以完成多少查询
+    + 对于关注吞度量的系统，卡顿是可以接受的，因为这个系统关注的是长时间的大量任务的执行能力，单次任务快速的响应并不值得考虑
    
 ### 响应能力
 
 - 响应能力指的是系统对请求是否能够快速及时响应
-   + 桌面ui响应一个事件
-   + 网站能够多块返回一个网页请求
-   + 数据库能够多快返回数据查询
+    + 桌面ui响应一个事件
+    + 网站能够多块返回一个网页请求
+    + 数据库能够多快返回数据查询
 - 对于这类响应能力敏感的场景，停顿是不能接受的
 
 ### G1设计目标
@@ -68,8 +68,8 @@
 - 不牺牲系统的吞吐量
 - G1不要求额外的内存空间，CMS需要预留空间存储浮动垃圾
 - G1的设计目标是要替换CMS
-   + G1在某些方面弥补了cms的不足，比如CMS采用mark sweep算法，会产生垃圾碎片，而G1采用coping算法，高效的整理内存空间而不会产生碎片
-   + G1提供了更多手段来达到对gc停顿时间可控作准备
+    + G1在某些方面弥补了cms的不足，比如CMS采用mark sweep算法，会产生垃圾碎片，而G1采用coping算法，高效的整理内存空间而不会产生碎片
+    + G1提供了更多手段来达到对gc停顿时间可控作准备
 
 ### G1堆结构
 
@@ -83,23 +83,23 @@
 - 在物理上不需要连续会带来额外的好处是有的分区垃圾对象特别多，有的分区垃圾对象少，G1会优先回收垃圾对象特别多的分区，这样可以花费较少的时间来完成这些分区的垃圾收集，这也就是G1名字的由来，优先收集垃圾多的分区
 - 依然在新生代满了的时候，对整个新生代进行回收，整个新生代的对象要么回收要么晋升，至于新生代要采取分区机制的原因是因为和老年代的策略统一， 方便调整代的大小，这强调方便调整代的大小
 - G1的Humongous区域
-   + 在G1中还有一特殊的区域，Humongous区域。如果一个对象占用一个分区容量的50%甚至更多，G1收集器就认为这是一个巨型对象，这些巨型对象会被直接分入老年代，但是如果这巨型对象只是一个短暂存在的对象，就会对垃圾收集器造成负面的影响，为了解决这个为题，G1划分了一个Humongous区域， 用来专门存放巨型对象，如果一个H区装不下一个巨型对象，那么G1会寻找连续的H区来存放，为了能找到连续的H区，G1有时候不得不启动Full gc
+    + 在G1中还有一特殊的区域，Humongous区域。如果一个对象占用一个分区容量的50%甚至更多，G1收集器就认为这是一个巨型对象，这些巨型对象会被直接分入老年代，但是如果这巨型对象只是一个短暂存在的对象，就会对垃圾收集器造成负面的影响，为了解决这个为题，G1划分了一个Humongous区域， 用来专门存放巨型对象，如果一个H区装不下一个巨型对象，那么G1会寻找连续的H区来存放，为了能找到连续的H区，G1有时候不得不启动Full gc
 - 对象的分配策略
-   + TLAB(Thread Local Allocation Buffer)线程本地分配缓冲区
-   + 每个线程在创建的时候会申请一块自己专属的内存区域，创建对象的时候可以快速给对象分配内存空间而不用去考虑一下安全性问题，比如并发问题，而不需要采用一些同步机制来管理共享空间内的空闲空间指针，这样为对象分配空间更高效
-   + Eden区中分配
-   + 对TLAB空间中无法分配的对象，JVM会尝试在Eden空间中进行分配。如果Eden空间无法容纳该对象，就只能在老年代中进行分配空间
-   + Humongous区分配 见上一条
+    + TLAB(Thread Local Allocation Buffer)线程本地分配缓冲区
+    + 每个线程在创建的时候会申请一块自己专属的内存区域，创建对象的时候可以快速给对象分配内存空间而不用去考虑一下安全性问题，比如并发问题，而不需要采用一些同步机制来管理共享空间内的空闲空间指针，这样为对象分配空间更高效
+    + Eden区中分配
+    + 对TLAB空间中无法分配的对象，JVM会尝试在Eden空间中进行分配。如果Eden空间无法容纳该对象，就只能在老年代中进行分配空间
+    + Humongous区分配 见上一条
 - 收集集合 CSet
-   + 一组可被回收的分区集合，在CSet中存在的数据会在GC过程中被移动到另外一个可用分区，CSet中的分区可以来自Eden Survivor 和Old空间
+    + 一组可被回收的分区集合，在CSet中存在的数据会在GC过程中被移动到另外一个可用分区，CSet中的分区可以来自Eden Survivor 和Old空间
 - G1的两种垃圾收集模式，都会STW
-   + young gc 选用所有年轻代里的Region，通过控制年轻代Region个数，即年轻代内存大小，来控制young gc的时间开销
-   + mixed gc 1.选用所有年轻代里的Region，外加根据global concurrent marking 统计得出收集收益高的若干老年代Region，在用户指定的目标开销范围内最大可能的选择收益较高的老年代Region 2.mixed gc不是Full GC，只能回收部分老年代 Region，如果mixed gc实在无法跟上程序分配内存的速度，导致老年代填满无法继续进行mixed gc，那么就会使用serial old gc来收集整个内存区域，这是Full GC，所以本质上，G1不提供Full GC
+    + young gc 选用所有年轻代里的Region，通过控制年轻代Region个数，即年轻代内存大小，来控制young gc的时间开销
+    + mixed gc 1.选用所有年轻代里的Region，外加根据global concurrent marking 统计得出收集收益高的若干老年代Region，在用户指定的目标开销范围内最大可能的选择收益较高的老年代Region 2.mixed gc不是Full GC，只能回收部分老年代 Region，如果mixed gc实在无法跟上程序分配内存的速度，导致老年代填满无法继续进行mixed gc，那么就会使用serial old gc来收集整个内存区域，这是Full GC，所以本质上，G1不提供Full GC
 - G1在运行过程中的主要模式
-   + young gc
-   + 并发阶段global concurrent marking，接下来会介绍
-   + 混合模式
-   + Full GC，一般是G1收集出现问题，收集速度赶不上垃圾产生的速度，就会使用serial old来进行Full GC
+    + young gc
+    + 并发阶段global concurrent marking，接下来会介绍
+    + 混合模式
+    + Full GC，一般是G1收集出现问题，收集速度赶不上垃圾产生的速度，就会使用serial old来进行Full GC
    
 ### G1 young gc
 
@@ -114,53 +114,53 @@
 - 在G1中并没有采用point-out，因为G1分区容量太小，数量太多，如果point-out会造成太多的扫描浪费，有些不需要扫描的GC区域也要被扫描，所以 G1中采用point-into来解决，point-into标示来哪些对象引用了这些region，这样仅仅将这些对象当作跟对象来扫描就可以了。一方面因为这个，还有一方面是因为G1 GC年轻代是必然被收集的，整个年轻的都会被扫描，这样使用point-into正好可以扫描出那些老年代region引用了我，不会造成扫描的浪费，如果像CMS一样采用point-out的理念，每个老年代region都会有自己的point-out的RSet，这样就必须要扫描整个老年代来确认了
 - 由于新生代由多个，那么需要记录新生代之间的引用吗？这是不必要的，因为在每次GC时，所有新生代都会被扫描，所以只需要记录老年代到新生代 的引用即可
 - 处理阶段
-   + 阶段1 根扫描 静态和本地对象被扫描
-   + 阶段2 更新RSet 处理dirty card队列更新RSet
-   + 阶段3 处理RSet 检测从年轻代指向老年代的对象
-   + 阶段4 对象拷贝 拷贝存活的对象到Survivor Old
-   + 阶段5 处理引用队列 软引用 弱引用 虚引用处理
+    + 阶段1 根扫描 静态和本地对象被扫描
+    + 阶段2 更新RSet 处理dirty card队列更新RSet
+    + 阶段3 处理RSet 检测从年轻代指向老年代的对象
+    + 阶段4 对象拷贝 拷贝存活的对象到Survivor Old
+    + 阶段5 处理引用队列 软引用 弱引用 虚引用处理
 
 ### G1 并发阶段
 
 - global concurrent marking 全局并发标记
 - global concurrent marking的执行过程类似于cms，但是不同的是，在G1 gc中，他主要为mixed gc提供标记服务的，标记哪些老年代region更适合去收集，收集得到的效益高，但这并不是G1 mixed gc的一个必要环节
 - 执行分为五个步骤
-   + 初始标记 initial mark，会stw， 标记了从gc roots直接可达的对象
-   + 根区域扫描 root region scan，在初始标记的存活区扫描对老年代的引用，并标记被引用的对象。该阶段与应用程序（非 STW）同时运行，并且只有完成该阶段后，才能开始下一次 STW 年轻代垃圾回收
-   + 并发标记 concurrent marking， 这个阶段从gc roots开始对heap中的对象进行标记，标记线程与应用程序并发执行，并且收集各个region的存活情况，可以被年轻代的STW中断
-   + 重新标记 remark stw，标记那些在并发标记阶段发生变化的对象，将被回收
-   + 清理 clean up，清除空region，没有存活对象的，加入到free list，然后识别可供进行混合垃圾回收的区域，会 清空 SATB 缓冲区
-   + 第一阶段的initial mark 是共用了 young gc 的暂停，这是因为他们可以复用root scan操作，所以可以说global concurrent marking是伴随 young gc发生的
-   + 第五阶段的clean up 只是回收了没有存活对象的region，所以并不需要stw
+    + 初始标记 initial mark，会stw， 标记了从gc roots直接可达的对象
+    + 根区域扫描 root region scan，在初始标记的存活区扫描对老年代的引用，并标记被引用的对象。该阶段与应用程序（非 STW）同时运行，并且只有完成该阶段后，才能开始下一次 STW 年轻代垃圾回收
+    + 并发标记 concurrent marking， 这个阶段从gc roots开始对heap中的对象进行标记，标记线程与应用程序并发执行，并且收集各个region的存活情况，可以被年轻代的STW中断
+    + 重新标记 remark stw，标记那些在并发标记阶段发生变化的对象，将被回收
+    + 清理 clean up，清除空region，没有存活对象的，加入到free list，然后识别可供进行混合垃圾回收的区域，会 清空 SATB 缓冲区
+    + 第一阶段的initial mark 是共用了 young gc 的暂停，这是因为他们可以复用root scan操作，所以可以说global concurrent marking是伴随 young gc发生的
+    + 第五阶段的clean up 只是回收了没有存活对象的region，所以并不需要stw
 - 其中步骤3的并发标记采用的是 三色标记算法，其中对象被分为三种类型
-   + 黑色 根对象或者他的子对象都被扫描过了，（对象被标记了，并且所有field也被标记完了）
-   + 灰色 对象本身被扫描，但还没扫描完自对象，（所有field并没有被扫面完）
-   + 白色 未被扫描对象，扫描完之后，最终为白色的为不可达对象
+    + 黑色 根对象或者他的子对象都被扫描过了，（对象被标记了，并且所有field也被标记完了）
+    + 灰色 对象本身被扫描，但还没扫描完自对象，（所有field并没有被扫面完）
+    + 白色 未被扫描对象，扫描完之后，最终为白色的为不可达对象
 - 下面演示下三色标记算法具体的流程
-   + GC从根开始扫描对象，扫描到的子对象被置为灰色![image text](https://mmbiz.qpic.cn/mmbiz_png/BQGpt2vnVYVjlviaED6dibwX7RQjRLpMPBwmF4Bb3e1Dpic7qb7iaB0tuL6xGqrPkVNUaCicibSPdGCTOG2hJxdrMdRw/0?wx_fmt=png)
-   + 然后继续扫描，从灰色进行扫描，自对象都被扫描标记完的编程黑色，被扫描到的对象标记为灰色，其中第二列第三个对象因为子对象未被全部扫描，所以这个对象还是灰色![image text](https://mmbiz.qpic.cn/mmbiz_png/BQGpt2vnVYVjlviaED6dibwX7RQjRLpMPB9TmhTNENaEch7RLnAJ2IYDWfmROO2NRAY3QazCytCqU792L7lyLo4w/0?wx_fmt=png)
-   + 然后扫描完毕，所有可达对象都被标记为黑色，不可达对象标记为白色，白色是需要被清理的对象![image text](https://mmbiz.qpic.cn/mmbiz_png/BQGpt2vnVYVjlviaED6dibwX7RQjRLpMPBs6MG0wndffVp0PMUjpziciaHavASiblhnBalvhwdaicia27QX61ZGpZiaHNg/0?wx_fmt=png)
+    + GC从根开始扫描对象，扫描到的子对象被置为灰色![image text](https://mmbiz.qpic.cn/mmbiz_png/BQGpt2vnVYVjlviaED6dibwX7RQjRLpMPBwmF4Bb3e1Dpic7qb7iaB0tuL6xGqrPkVNUaCicibSPdGCTOG2hJxdrMdRw/0?wx_fmt=png)
+    + 然后继续扫描，从灰色进行扫描，自对象都被扫描标记完的编程黑色，被扫描到的对象标记为灰色，其中第二列第三个对象因为子对象未被全部扫描，所以这个对象还是灰色![image text](https://mmbiz.qpic.cn/mmbiz_png/BQGpt2vnVYVjlviaED6dibwX7RQjRLpMPB9TmhTNENaEch7RLnAJ2IYDWfmROO2NRAY3QazCytCqU792L7lyLo4w/0?wx_fmt=png)
+    + 然后扫描完毕，所有可达对象都被标记为黑色，不可达对象标记为白色，白色是需要被清理的对象![image text](https://mmbiz.qpic.cn/mmbiz_png/BQGpt2vnVYVjlviaED6dibwX7RQjRLpMPBs6MG0wndffVp0PMUjpziciaHavASiblhnBalvhwdaicia27QX61ZGpZiaHNg/0?wx_fmt=png)
 - 这样就完成了标记，看似很完美，但是这是并发标记阶段，标记的过程中用户程序也在运行，会引起对象引用关系的变化，就会造成 误标 和 漏标，误标就是把本是垃圾对象标记为了非垃圾对象，漏标是非垃圾对象没有被标记，误标是可以允许的，可以在下次垃圾回收清理，这类垃圾也被称为浮动垃圾floating garbage，漏标就不被允许了，会造成程序的错误。下面演示下漏标的一种情况
-   + 此时扫描的情况为，C已经标记为黑色，子对象被扫描完，B子对象还未被扫描，为灰色![image text](https://mmbiz.qpic.cn/mmbiz_png/BQGpt2vnVYVjlviaED6dibwX7RQjRLpMPB1s2nFwbbDB9D57hJicXsl0fBWOj6ujsYibBFeTZWhcPCdWMalgWyicxMg/0?wx_fmt=png)
-   + 接下来因为用户线程也在运行，如果运行一下代码
+    + 此时扫描的情况为，C已经标记为黑色，子对象被扫描完，B子对象还未被扫描，为灰色![image text](https://mmbiz.qpic.cn/mmbiz_png/BQGpt2vnVYVjlviaED6dibwX7RQjRLpMPB1s2nFwbbDB9D57hJicXsl0fBWOj6ujsYibBFeTZWhcPCdWMalgWyicxMg/0?wx_fmt=png)
+    + 接下来因为用户线程也在运行，如果运行一下代码
     ```
     C.D = B.D;
     B.D = null;
     ```
-   + 那么此时引用关系就会变为如下图所描述情况![image text](https://mmbiz.qpic.cn/mmbiz_png/BQGpt2vnVYVjlviaED6dibwX7RQjRLpMPBO7WDasvmq7JJIvQyU7paPicvJ2RoRXwA9sz9T99MznOqmWlY5rvRiaug/0?wx_fmt=png)
-   + 此时继续扫描，C为黑色，所以D不再会被标记，就出现了漏标的情况
+    + 那么此时引用关系就会变为如下图所描述情况![image text](https://mmbiz.qpic.cn/mmbiz_png/BQGpt2vnVYVjlviaED6dibwX7RQjRLpMPBO7WDasvmq7JJIvQyU7paPicvJ2RoRXwA9sz9T99MznOqmWlY5rvRiaug/0?wx_fmt=png)
+    + 此时继续扫描，C为黑色，所以D不再会被标记，就出现了漏标的情况
 - 其实上述问题可以总结为以下两种
-   + 灰色对象引用被更改，这种解决方式为删除时候记录对象
-   + 黑色对象引用被赋值，这种解决方式为插入时候记录对象
-   + 上述两种方式对应于CMS和G1的两种解决方式
-   + 在CMS采用的是增量更新（Incremental update），只要在写屏障（write barrier）里发现要有一个白对象的引用被赋值到一个黑对象的字段里，那就把这个白对象变成灰色的。即插入的时候记录下来
-   + 对于G1在接下来讲述
+    + 灰色对象引用被更改，这种解决方式为删除时候记录对象
+    + 黑色对象引用被赋值，这种解决方式为插入时候记录对象
+    + 上述两种方式对应于CMS和G1的两种解决方式
+    + 在CMS采用的是增量更新（Incremental update），只要在写屏障（write barrier）里发现要有一个白对象的引用被赋值到一个黑对象的字段里，那就把这个白对象变成灰色的。即插入的时候记录下来
+    + 对于G1在接下来讲述
 - G1的SATB（snapshot-at-the-beginning）
-   + 接上一小节，G1对应的是灰色对象引用被更改，记录该对象
-   + 分为三个步骤
-   + 1 在开始标记的时候生成一个快照图标记存活对象
-   + 2 在并发标记的时候所有被改变的对象入队（在write barrier里把所有旧的引用所指向的对象都变成非白的）
-   + 3 可能存在游离的垃圾，将在下次被收集
+    + 接上一小节，G1对应的是灰色对象引用被更改，记录该对象
+    + 分为三个步骤
+    + 1 在开始标记的时候生成一个快照图标记存活对象
+    + 2 在并发标记的时候所有被改变的对象入队（在write barrier里把所有旧的引用所指向的对象都变成非白的）
+    + 3 可能存在游离的垃圾，将在下次被收集
 
 ### G1 mixed gc
 
@@ -175,18 +175,18 @@
 ### G1最佳实践
 
 - 不断调优暂停时间指标
-   + 通过-XX:MaxGCPauseMillis=X来设置启动应用程序的暂停时间，G1在运行的时候会根据这个参数来选择CSet来满足用户设置的时间，一般在100到200ms 之间，如果设置的太短如50ms的话，会让垃圾产生的速度大于回收的速度，最后退化为Full GC
+    + 通过-XX:MaxGCPauseMillis=X来设置启动应用程序的暂停时间，G1在运行的时候会根据这个参数来选择CSet来满足用户设置的时间，一般在100到200ms 之间，如果设置的太短如50ms的话，会让垃圾产生的速度大于回收的速度，最后退化为Full GC
 - 不要设置老年代和新生代大小
-   + G1收集器在运行是会动态调整新生代老年代大小，通过改变代的大小来调整对象晋升老年代的年龄，从而达到为收集器设置的暂停时间目标
-   + 设置新生代大小相当于放弃了G1的动态调节能力，需要做的是设置整个堆的大小，让G1自己动态调节
+    + G1收集器在运行是会动态调整新生代老年代大小，通过改变代的大小来调整对象晋升老年代的年龄，从而达到为收集器设置的暂停时间目标
+    + 设置新生代大小相当于放弃了G1的动态调节能力，需要做的是设置整个堆的大小，让G1自己动态调节
 - 关注 Evacuation Failure
-   + Evacuation Failure 类似与CMS里边的晋升失败，堆空间垃圾太多导致无法完成Region之间的拷贝，没有足够的内存供存活对象或晋升对象使用，于是不得把退化成Full gc来完成一次全局 范围内的垃圾收集，由此触发了Full GC。可以在日志中看到(to-space exhausted)或者（to-space overflow）
-   + 解决办法有三个
-      * 增加 -XX:G1ReservePercent 选项的值（并相应增加总的堆大小），为“目标空间”增加预留内存量
-      * 通过减少 -XX:InitiatingHeapOccupancyPercent 提前启动标记周期
-      * 也可以通过增加 -XX:ConcGCThreads 选项的值来增加并行标记线程的数目
+    + Evacuation Failure 类似与CMS里边的晋升失败，堆空间垃圾太多导致无法完成Region之间的拷贝，没有足够的内存供存活对象或晋升对象使用，于是不得把退化成Full gc来完成一次全局 范围内的垃圾收集，由此触发了Full GC。可以在日志中看到(to-space exhausted)或者（to-space overflow）
+    + 解决办法有三个
+    + 增加 -XX:G1ReservePercent 选项的值（并相应增加总的堆大小），为“目标空间”增加预留内存量
+    + 通过减少 -XX:InitiatingHeapOccupancyPercent 提前启动标记周期
+    + 也可以通过增加 -XX:ConcGCThreads 选项的值来增加并行标记线程的数目
 - 关注Humongous Allocation 巨型对象分配失败
-   + 当巨型对象找不到合适的空间进行分配时，就会启动Full GC，来释放空间。这种情况下，应该避免分配大量的巨型对象，增加内存或者增大-XX:G1HeapRegionSize=X，使巨型对象不再是巨型对象
+    + 当巨型对象找不到合适的空间进行分配时，就会启动Full GC，来释放空间。这种情况下，应该避免分配大量的巨型对象，增加内存或者增大-XX:G1HeapRegionSize=X，使巨型对象不再是巨型对象
 
       
 
